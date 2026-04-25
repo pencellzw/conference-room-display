@@ -5,9 +5,7 @@
   <title>Conference Room Display</title>
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     html, body {
       margin: 0;
@@ -26,15 +24,156 @@
       display: grid;
       grid-template-columns: 600px 200px;
       grid-template-rows: 400px 80px;
-      border: 1px solid #ddd;
     }
 
     .main {
-      grid-column: 1;
-      grid-row: 1;
       padding: 28px 55px;
       position: relative;
     }
+
+    .room-title {
+      font-size: 34px;
+      font-weight: 400;
+      margin: 0;
+    }
+
+    .status {
+      font-size: 88px;
+      font-weight: 800;
+      margin-top: 120px;
+      letter-spacing: -3px;
+    }
+
+    .current-booking {
+      position: absolute;
+      bottom: 28px;
+      left: 55px;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .side {
+      grid-column: 2;
+      grid-row: 1 / 3;
+      border-left: 3px solid #000;
+      display: grid;
+      grid-template-rows: 190px 290px;
+    }
+
+    .qr-box {
+      padding: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .qr-box img {
+      width: 145px;
+      height: 145px;
+      object-fit: contain;
+    }
+
+    .tokens {
+      background: #000;
+      color: #fff;
+      padding: 25px 34px;
+    }
+
+    .tokens h2 {
+      font-size: 18px;
+      margin: 0 0 28px 0;
+      font-weight: 800;
+    }
+
+    .tokens p {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      margin: 0 0 22px 0;
+    }
+
+    .footer {
+      grid-column: 1;
+      grid-row: 2;
+      background: #efefef;
+      padding: 20px 55px;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .footer strong {
+      font-weight: 800;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="screen">
+
+    <main class="main">
+      <h1 class="room-title" id="roomName">Loading...</h1>
+      <div class="status" id="status">Loading</div>
+      <div class="current-booking" id="currentBooking"></div>
+    </main>
+
+    <aside class="side">
+      <div class="qr-box">
+        <img id="qrCode" alt="QR Code">
+      </div>
+
+      <div class="tokens">
+        <h2>WIFI TOKENS</h2>
+        <p id="token1"></p>
+        <p id="token2"></p>
+        <p id="token3"></p>
+        <p id="token4"></p>
+      </div>
+    </aside>
+
+    <footer class="footer">
+      <strong>Next Meeting:</strong> <span id="nextMeeting"></span>
+    </footer>
+
+  </div>
+
+  <script>
+    const DATA_URL = "https://script.google.com/macros/s/AKfycbyqj1s3RbinCjj_cYuPS_T_kU_iAnngT17maJ4Se_h-QtQKfDjrvCcDHh1PxAgHS0MvNw/exec";
+
+    async function loadData() {
+      try {
+        const response = await fetch(DATA_URL + "?t=" + Date.now(), {
+          cache: "no-store"
+        });
+
+        const data = await response.json();
+
+        document.getElementById("roomName").innerText = data.roomName || "Conference Room";
+        document.getElementById("status").innerText = data.status || "Available";
+        document.getElementById("currentBooking").innerText = data.currentBooking || "";
+        document.getElementById("nextMeeting").innerText = data.nextMeeting || "";
+
+        document.getElementById("token1").innerText = data.token1 || "";
+        document.getElementById("token2").innerText = data.token2 || "";
+        document.getElementById("token3").innerText = data.token3 || "";
+        document.getElementById("token4").innerText = data.token4 || "";
+
+        document.getElementById("qrCode").src =
+          "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" +
+          encodeURIComponent(data.qrLink || "");
+
+      } catch (error) {
+        document.getElementById("status").innerText = "Offline";
+        document.getElementById("nextMeeting").innerText = "Data unavailable";
+      }
+    }
+
+    loadData();
+    setInterval(loadData, 10000);
+  </script>
+
+</body>
+</html>    }
 
     .room-title {
       font-size: 34px;
