@@ -18,6 +18,21 @@
       color: black;
     }
 
+    body.loading .screen {
+      visibility: hidden;
+    }
+
+    body.loading::before {
+      content: "Loading live data...";
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 800px;
+      height: 480px;
+      font-size: 28px;
+      font-weight: 700;
+    }
+
     .screen {
       width: 800px;
       height: 480px;
@@ -77,6 +92,7 @@
       background: #000;
       color: #fff;
       padding: 25px 34px;
+      overflow: hidden;
     }
 
     .tokens h2 {
@@ -90,6 +106,7 @@
       font-weight: 800;
       letter-spacing: 2px;
       margin: 0 0 22px 0;
+      line-height: 1.1;
     }
 
     .footer {
@@ -107,7 +124,7 @@
   </style>
 </head>
 
-<body>
+<body class="loading">
 
   <div class="screen">
 
@@ -162,14 +179,20 @@
           "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" +
           encodeURIComponent(data.qrLink || "");
 
+        document.body.classList.remove("loading");
+
       } catch (error) {
+        document.getElementById("roomName").innerText = "Conference Room";
         document.getElementById("status").innerText = "Offline";
         document.getElementById("nextMeeting").innerText = "Data unavailable";
+
+        document.body.classList.remove("loading");
       }
     }
 
     loadData();
-    setInterval(loadData, 10000);
+
+    setInterval(loadData, 60000);
   </script>
 
 </body>
