@@ -154,46 +154,47 @@
 
   </div>
 
-  <script>
-    const DATA_URL = "https://script.google.com/macros/s/AKfycbyqj1s3RbinCjj_cYuPS_T_kU_iAnngT17maJ4Se_h-QtQKfDjrvCcDHh1PxAgHS0MvNw/exec";
+ <script>
+  const DATA_URL = "https://script.google.com/macros/s/AKfycbwY2Rq83WslGzmOhg26xxkmq-gmW2xcSmu6cCLTnmUeGeddQZyDXzlqus8yoMk-Tkw3ew/exec";
 
-    async function loadData() {
-      try {
-        const response = await fetch(DATA_URL + "?t=" + Date.now(), {
-          cache: "no-store"
-        });
+  function updateDisplay(data) {
+    document.getElementById("roomName").innerText = data.roomName || "Conference Room";
+    document.getElementById("status").innerText = data.status || "Available";
+    document.getElementById("currentBooking").innerText = data.currentBooking || "";
+    document.getElementById("nextMeeting").innerText = data.nextMeeting || "";
 
-        const data = await response.json();
+    document.getElementById("token1").innerText = data.token1 || "";
+    document.getElementById("token2").innerText = data.token2 || "";
+    document.getElementById("token3").innerText = data.token3 || "";
+    document.getElementById("token4").innerText = data.token4 || "";
 
-        document.getElementById("roomName").innerText = data.roomName || "Conference Room";
-        document.getElementById("status").innerText = data.status || "Available";
-        document.getElementById("currentBooking").innerText = data.currentBooking || "";
-        document.getElementById("nextMeeting").innerText = data.nextMeeting || "";
+    document.getElementById("qrCode").src =
+      "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" +
+      encodeURIComponent(data.qrLink || "");
 
-        document.getElementById("token1").innerText = data.token1 || "";
-        document.getElementById("token2").innerText = data.token2 || "";
-        document.getElementById("token3").innerText = data.token3 || "";
-        document.getElementById("token4").innerText = data.token4 || "";
+    document.body.classList.remove("loading");
+  }
 
-        document.getElementById("qrCode").src =
-          "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" +
-          encodeURIComponent(data.qrLink || "");
+  function loadData() {
+    const oldScript = document.getElementById("jsonpScript");
+    if (oldScript) oldScript.remove();
 
-        document.body.classList.remove("loading");
+    const script = document.createElement("script");
+    script.id = "jsonpScript";
+    script.src = DATA_URL + "?callback=updateDisplay&t=" + Date.now();
 
-      } catch (error) {
-        document.getElementById("roomName").innerText = "Conference Room";
-        document.getElementById("status").innerText = "Offline";
-        document.getElementById("nextMeeting").innerText = "Data unavailable";
+    script.onerror = function() {
+      document.getElementById("status").innerText = "Offline";
+      document.getElementById("nextMeeting").innerText = "Could not load data";
+      document.body.classList.remove("loading");
+    };
 
-        document.body.classList.remove("loading");
-      }
-    }
+    document.body.appendChild(script);
+  }
 
-    loadData();
-
-    setInterval(loadData, 60000);
-  </script>
+  loadData();
+  setInterval(loadData, 60000);
+</script>
 
 </body>
 </html>
